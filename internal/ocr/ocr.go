@@ -4,15 +4,17 @@ package ocr
 
 import (
 	"errors"
-	"genesis/goimgocr/ocr/imageprocessing"
-	"genesis/goimgocr/ocr/languageutils"
+	"genesis/goimgocr/internal/ocr/imageprocessing"
+	"genesis/goimgocr/internal/ocr/languageutils"
+	"genesis/goimgocr/internal/ocr/textprocessing"
 
 	"github.com/otiai10/gosseract/v2"
 )
 
+// NOTE: These are temporary while I figure out how I should structrure the main exacutable args or perhaps a config file later
 const (
 	tessdataDir     = "/usr/share/tessdata" // Directory where Tesseract language data files are stored
-	targetPixelArea = 1000.0                // Target pixel area for image preprocessing
+	targetPixelArea = 10000000.0            // Target pixel area for image preprocessing
 )
 
 // ExtractTextFromImage takes the path to an image file,
@@ -45,5 +47,15 @@ func ExtractTextFromImage(imagePath string, languages ...string) (string, error)
 
 	ocrClient.SetImageFromBytes(imageBytes)
 
-	return ocrClient.Text()
+	extractedText, err := ocrClient.Text()
+	if err != nil {
+		return "", err
+	}
+
+	outputText, err := textprocessing.TrimJapanseText(extractedText)
+	if err != nil {
+		return "", err
+	}
+
+	return outputText, nil
 }

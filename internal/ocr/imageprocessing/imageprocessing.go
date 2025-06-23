@@ -16,7 +16,6 @@ import (
 func PreprocessImage(imagePath string, targetPixelArea float64) ([]byte, error) {
 	preprocessedImageMat := gocv.IMRead(imagePath, gocv.IMReadColor)
 
-	fmt.Println("Converting image to grayscale")
 	// Convert image to grayscale
 	err := gocv.CvtColor(preprocessedImageMat, &preprocessedImageMat, gocv.ColorBGRToGray)
 	if err != nil {
@@ -32,8 +31,8 @@ func PreprocessImage(imagePath string, targetPixelArea float64) ([]byte, error) 
 
 	// If image pixel areaa is less than target pixel area then scale the image
 	// to meet the target pixel area
+	fmt.Println("Preprocessed image size:", preProcessedImageSize.X*preProcessedImageSize.Y)
 	if float64(preProcessedImageSize.X*preProcessedImageSize.Y) < targetPixelArea {
-		fmt.Println("Image does not meet target pixel area, scaling image...")
 		scalingFactor, err := computScalingFactor(preProcessedImageSize, targetPixelArea)
 		if err != nil {
 			return nil, err

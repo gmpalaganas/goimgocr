@@ -5,7 +5,7 @@ package main
 
 import (
 	"fmt"
-	"genesis/goimgocr/ocr"
+	"genesis/goimgocr/internal/ocr"
 	"log"
 )
 
