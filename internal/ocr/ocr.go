@@ -11,20 +11,20 @@ import (
 	"github.com/otiai10/gosseract/v2"
 )
 
-// NOTE: These are temporary while I figure out how I should structrure the main exacutable args or perhaps a config file later
-const (
-	tessdataDir     = "/usr/share/tessdata" // Directory where Tesseract language data files are stored
-	targetPixelArea = 10000000.0            // Target pixel area for image preprocessing
-)
+type OCRConfig struct {
+	TessdataDir     string   // Directory where Tesseract language data files are stored
+	TargetPixelArea float64  // Target pixel area for image preprocessing
+	Languages       []string // Languages to be used for OCR
+}
 
 // ExtractTextFromImage takes the path to an image file,
 // and the languages to extract.
 //
 // Returns the extracted text as a string.
-func ExtractTextFromImage(imagePath string, languages ...string) (string, error) {
+func ExtractTextFromImage(imagePath string, ocrConfig OCRConfig) (string, error) {
 	// Check if provided language is available
-	for _, lang := range languages {
-		languageExists, _ := languageutils.CheckLanguageExists(tessdataDir, lang)
+	for _, lang := range ocrConfig.Languages {
+		languageExists, _ := languageutils.CheckLanguageExists(ocrConfig.TessdataDir, lang)
 		if !languageExists {
 			langErr := errors.New("language " + lang + " does not exist in tessdata directory")
 			return "", langErr
@@ -35,12 +35,11 @@ func ExtractTextFromImage(imagePath string, languages ...string) (string, error)
 	defer ocrClient.Close()
 
 	// Set the languages to be used for OCR.
-	err := ocrClient.SetLanguage(languages...)
+	err := ocrClient.SetLanguage(ocrConfig.Languages...)
 	if err != nil {
 		return "", err
 	}
-
-	imageBytes, err := imageprocessing.PreprocessImage(imagePath, targetPixelArea)
+	imageBytes, err := imageprocessing.PreprocessImage(imagePath, ocrConfig.TargetPixelArea)
 	if err != nil {
 		return "", err
 	}

@@ -7,11 +7,28 @@ import (
 	"fmt"
 	"genesis/goimgocr/internal/ocr"
 	"log"
+	"strings"
+)
+
+// NOTE: Temp values
+// TODO: Make main read from a config file or command line arguments
+const (
+	tessdataDir     = "/usr/share/tessdata" // Directory where Tesseract language data files are stored
+	targetPixelArea = 500000.0              // Target pixel area for image preprocessing
+	languages       = "jpn eng"             // Languages to be used for OCR
 )
 
 func main() {
 	fmt.Println("Starting OCR process...")
-	text, err := ocr.ExtractTextFromImage("./testimg/testimg1.png", "jpn", "eng")
+	languagesList := strings.Split(languages, " ")
+
+	config := ocr.OCRConfig{
+		TessdataDir:     tessdataDir,
+		TargetPixelArea: targetPixelArea,
+		Languages:       languagesList,
+	}
+
+	text, err := ocr.ExtractTextFromImage("./testimg/testimg1.png", config)
 	if err != nil {
 		log.Fatal(err)
 	}
