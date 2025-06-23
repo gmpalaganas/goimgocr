@@ -3,7 +3,6 @@
 package imageprocessing
 
 import (
-	"fmt"
 	"image"
 	"math"
 
@@ -31,7 +30,6 @@ func PreprocessImage(imagePath string, targetPixelArea float64) ([]byte, error) 
 
 	// If image pixel areaa is less than target pixel area then scale the image
 	// to meet the target pixel area
-	fmt.Println("Preprocessed image size:", preProcessedImageSize.X*preProcessedImageSize.Y)
 	if float64(preProcessedImageSize.X*preProcessedImageSize.Y) < targetPixelArea {
 		scalingFactor, err := computScalingFactor(preProcessedImageSize, targetPixelArea)
 		if err != nil {

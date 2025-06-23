@@ -2,7 +2,6 @@
 package textprocessing
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -10,7 +9,6 @@ import (
 
 func TrimJapanseText(text string) (string, error) {
 	japaneseCharPattern := `[\p{Hiragana}\p{Katakana}\p{Han}]`
-	fmt.Println("Japanese character pattern:", japaneseCharPattern)
 
 	spaceBeforeJpRegexp := regexp.MustCompile(`\s+(` + japaneseCharPattern + `)`)
 	spaceAfterJpRegexp := regexp.MustCompile(`(` + japaneseCharPattern + `)\s+`)
