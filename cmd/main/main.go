@@ -4,23 +4,57 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genesis/goimgocr/internal/ocr"
 	"log"
+	"os"
 	"strings"
 )
 
-// NOTE: Temp values
+// NOTE: Temp default values
 // TODO: Make main read from a config file or command line arguments
 const (
-	tessdataDir     = "/usr/share/tessdata" // Directory where Tesseract language data files are stored
-	targetPixelArea = 500000.0              // Target pixel area for image preprocessing
-	languages       = "jpn eng"             // Languages to be used for OCR
+	tessdataDirDefault     = "/usr/share/tessdata"    // Directory where Tesseract language data files are stored
+	targetPixelAreaDefault = 500000.0                 // Target pixel area for image preprocessing
+	languagesDefault       = "jpn+eng"                // Languages to be used for OCR
+	testImagePathDefault   = "./testimg/testimg1.png" // Path to the image file to be processed
 )
 
 func main() {
-	fmt.Println("Starting OCR process...")
-	languagesList := strings.Split(languages, " ")
+	args := os.Args
+
+	if len(args) <= 1 {
+		log.Fatal("Please provide the path to the image file as an argument.")
+	}
+
+	// Set up command line flags
+	var tessdataDir string
+	var targetPixelArea float64
+	var languages string
+
+	flag.StringVar(&tessdataDir, "tessdata", tessdataDirDefault, "Directory where Tesseract language data files are stored")
+	flag.Float64Var(&targetPixelArea, "target-pixel-area", targetPixelAreaDefault, "Target pixel area for image preprocessing")
+	flag.StringVar(&languages, "languages", languagesDefault, "Languages to be used for OCR ('+'-separated)")
+
+	// Set Usage message
+	usage := func() {
+		fmt.Printf("Usage: %s [image_path] [options]\nOptions:\n", args[0])
+		flag.PrintDefaults()
+	}
+
+	flag.Usage = usage
+
+	flag.Parse()
+
+	imagePath := args[1]
+
+	// Check if the image file exists
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		log.Fatalf("Image file does not exist: %s", imagePath)
+	}
+
+	languagesList := strings.Split(languages, "+")
 
 	config := ocr.OCRConfig{
 		TessdataDir:     tessdataDir,
@@ -28,10 +62,18 @@ func main() {
 		Languages:       languagesList,
 	}
 
-	text, err := ocr.ExtractTextFromImage("./testimg/testimg1.png", config)
+	fmt.Printf("Starting OCR process for %s with the following configuration:\n", imagePath)
+	fmt.Println("Tessdata Directory:", config.TessdataDir)
+	fmt.Println("Target Pixel Area:", config.TargetPixelArea)
+	fmt.Println("Languages:", config.Languages)
+	fmt.Println("")
+
+	text, err := ocr.ExtractTextFromImage(imagePath, config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Extracted Text:\n", text)
+	fmt.Println("====Extracted Text====")
+	fmt.Print(text)
+	fmt.Println("=======================")
 }
