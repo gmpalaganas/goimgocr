@@ -62,18 +62,10 @@ func main() {
 		Languages:       languagesList,
 	}
 
-	fmt.Printf("Starting OCR process for %s with the following configuration:\n", imagePath)
-	fmt.Println("Tessdata Directory:", config.TessdataDir)
-	fmt.Println("Target Pixel Area:", config.TargetPixelArea)
-	fmt.Println("Languages:", config.Languages)
-	fmt.Println("")
-
 	text, err := ocr.ExtractTextFromImage(imagePath, config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("====Extracted Text====")
 	fmt.Print(text)
-	fmt.Println("=======================")
 }
