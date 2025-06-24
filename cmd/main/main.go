@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 // NOTE: Temp default values
@@ -33,6 +34,8 @@ func main() {
 	var targetPixelArea float64
 	var languages string
 	var debugMode bool
+
+	var startTime time.Time
 
 	flag.StringVar(
 		&tessDataDir,
@@ -79,11 +82,14 @@ func main() {
 		TargetPixelArea: targetPixelArea,
 		Languages:       languagesList,
 	}
+
 	if debugMode {
 		fmt.Println("Running with the following configuration:")
 		fmt.Println("Tesseract data Directory:", config.TessDataDir)
 		fmt.Println("Target Pixel Area:", config.TargetPixelArea)
 		fmt.Println("Languages:", strings.Join(config.Languages, ", "))
+
+		startTime = time.Now()
 	}
 
 	text, err := ocr.ExtractTextFromImage(imagePath, config)
@@ -92,4 +98,8 @@ func main() {
 	}
 
 	fmt.Print(text)
+
+	if debugMode {
+		fmt.Println("OCR finished in ", time.Since(startTime))
+	}
 }
