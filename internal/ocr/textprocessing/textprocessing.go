@@ -4,28 +4,40 @@ package textprocessing
 import (
 	"regexp"
 	"strings"
+	"sync"
 	"unicode"
 )
 
+// TrimJapanseText trims the surrounding spaces from Japanese characters
+// in the given text.
 func TrimJapanseText(text string) (string, error) {
-	japaneseCharPattern := `[\p{Hiragana}\p{Katakana}\p{Han}]`
+	lines := strings.SplitAfter(text, "\n")
+	newLines := make([]string, len(lines))
 
-	spaceBeforeJpRegexp := regexp.MustCompile(`\s+(` + japaneseCharPattern + `)`)
-	spaceAfterJpRegexp := regexp.MustCompile(`(` + japaneseCharPattern + `)\s+`)
+	var lineProcessingGroup sync.WaitGroup
 
-	outputText := ""
-
-	lines := strings.SplitAfterSeq(text, "\n")
-
-	for line := range lines {
+	for i, line := range lines {
 		if hasJapaneseCharacters(line) {
-			lineText := spaceBeforeJpRegexp.ReplaceAllString(line, "$1")
-			outputText += spaceAfterJpRegexp.ReplaceAllString(lineText, "$1") + "\n"
+			lineProcessingGroup.Add(1)
+			// Start a goroutine to process a line containing Japanese characters
+			go func() {
+				defer lineProcessingGroup.Done()
+
+				trimPattern := `\s+([\p{Hiragana}\p{Katakana}\p{Han}])\s+`
+				surroundingSpaceRegexp := regexp.MustCompile(trimPattern)
+				newLine := surroundingSpaceRegexp.ReplaceAllString(line, "$1")
+				newLine = strings.TrimSpace(newLine)
+				newLines[i] = newLine + "\n"
+			}()
 		} else {
-			// Skip lines that do not contain Japanese characters
-			outputText += strings.TrimSpace(line) + "\n"
+			newLines[i] = line
 		}
 	}
+
+	// Wait for all line processing goroutines to finish
+	lineProcessingGroup.Wait()
+
+	outputText := strings.Join(newLines, "")
 
 	return outputText, nil
 }
