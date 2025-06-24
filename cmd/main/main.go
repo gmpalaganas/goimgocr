@@ -33,13 +33,25 @@ func main() {
 	var targetPixelArea float64
 	var languages string
 
-	flag.StringVar(&tessDataDir, "tessdata", tessdataDirDefault, "Directory where Tesseract language data files are stored")
-	flag.Float64Var(&targetPixelArea, "target-pixel-area", targetPixelAreaDefault, "Target pixel area for image preprocessing")
-	flag.StringVar(&languages, "languages", languagesDefault, "Languages to be used for OCR ('+'-separated)")
+	flag.StringVar(
+		&tessDataDir,
+		"tessdata",
+		tessdataDirDefault,
+		"Directory where Tesseract language data files are stored")
+	flag.Float64Var(
+		&targetPixelArea,
+		"target-pixel-area",
+		targetPixelAreaDefault,
+		"Target pixel area for image preprocessing")
+	flag.StringVar(
+		&languages,
+		"languages",
+		languagesDefault,
+		"Languages to be used for OCR ('+'-separated)")
 
 	// Set Usage message
 	usage := func() {
-		fmt.Printf("Usage: %s [image_path] [options]\nOptions:\n", args[0])
+		fmt.Printf("Usage: %s [options] [image_path]\nOptions:\n", args[0])
 		flag.PrintDefaults()
 	}
 
@@ -47,7 +59,7 @@ func main() {
 
 	flag.Parse()
 
-	imagePath := args[1]
+	imagePath := args[len(args)-1] // Get the last argument as the image path
 
 	// Check if the image file exists
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
@@ -61,6 +73,11 @@ func main() {
 		TargetPixelArea: targetPixelArea,
 		Languages:       languagesList,
 	}
+
+	fmt.Println("Running with the following configuration:")
+	fmt.Println("Tesseract data Directory:", config.TessDataDir)
+	fmt.Println("Target Pixel Area:", config.TargetPixelArea)
+	fmt.Println("Languages:", strings.Join(config.Languages, ", "))
 
 	text, err := ocr.ExtractTextFromImage(imagePath, config)
 	if err != nil {
