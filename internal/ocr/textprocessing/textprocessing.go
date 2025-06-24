@@ -17,21 +17,21 @@ func TrimJapanseText(text string) (string, error) {
 	var lineProcessingGroup sync.WaitGroup
 
 	for i, line := range lines {
-		if hasJapaneseCharacters(line) {
-			lineProcessingGroup.Add(1)
-			// Start a goroutine to process a line containing Japanese characters
-			go func() {
-				defer lineProcessingGroup.Done()
+		// Launch a goroutine for each line to process it concurrently
+		go func() {
+			if hasJapaneseCharacters(line) {
+				lineProcessingGroup.Add(1)
 
+				defer lineProcessingGroup.Done()
 				trimPattern := `\s+([\p{Hiragana}\p{Katakana}\p{Han}])\s+`
 				surroundingSpaceRegexp := regexp.MustCompile(trimPattern)
 				newLine := surroundingSpaceRegexp.ReplaceAllString(line, "$1")
 				newLine = strings.TrimSpace(newLine)
 				newLines[i] = newLine + "\n"
-			}()
-		} else {
-			newLines[i] = line
-		}
+			} else {
+				newLines[i] = line
+			}
+		}()
 	}
 
 	// Wait for all line processing goroutines to finish
