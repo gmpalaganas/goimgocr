@@ -32,6 +32,7 @@ func main() {
 	var tessDataDir string
 	var targetPixelArea float64
 	var languages string
+	var debugMode bool
 
 	flag.StringVar(
 		&tessDataDir,
@@ -48,6 +49,11 @@ func main() {
 		"languages",
 		languagesDefault,
 		"Languages to be used for OCR ('+'-separated)")
+	flag.BoolVar(
+		&debugMode,
+		"debug",
+		false,
+		"Enable or disable debug mode")
 
 	// Set Usage message
 	usage := func() {
@@ -73,11 +79,12 @@ func main() {
 		TargetPixelArea: targetPixelArea,
 		Languages:       languagesList,
 	}
-
-	fmt.Println("Running with the following configuration:")
-	fmt.Println("Tesseract data Directory:", config.TessDataDir)
-	fmt.Println("Target Pixel Area:", config.TargetPixelArea)
-	fmt.Println("Languages:", strings.Join(config.Languages, ", "))
+	if debugMode {
+		fmt.Println("Running with the following configuration:")
+		fmt.Println("Tesseract data Directory:", config.TessDataDir)
+		fmt.Println("Target Pixel Area:", config.TargetPixelArea)
+		fmt.Println("Languages:", strings.Join(config.Languages, ", "))
+	}
 
 	text, err := ocr.ExtractTextFromImage(imagePath, config)
 	if err != nil {
