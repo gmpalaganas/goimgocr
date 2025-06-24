@@ -12,7 +12,7 @@ import (
 )
 
 type OCRConfig struct {
-	TessdataDir     string   // Directory where Tesseract language data files are stored
+	TessDataDir     string   // Directory where Tesseract language data files are stored
 	TargetPixelArea float64  // Target pixel area for image preprocessing
 	Languages       []string // Languages to be used for OCR
 }
@@ -24,7 +24,7 @@ type OCRConfig struct {
 func ExtractTextFromImage(imagePath string, ocrConfig OCRConfig) (string, error) {
 	// Check if provided language is available
 	for _, lang := range ocrConfig.Languages {
-		languageExists, _ := languageutils.CheckLanguageExists(ocrConfig.TessdataDir, lang)
+		languageExists, _ := languageutils.CheckLanguageExists(ocrConfig.TessDataDir, lang)
 		if !languageExists {
 			langErr := errors.New("language " + lang + " does not exist in tessdata directory")
 			return "", langErr

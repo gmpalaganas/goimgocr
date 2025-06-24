@@ -29,11 +29,11 @@ func main() {
 	}
 
 	// Set up command line flags
-	var tessdataDir string
+	var tessDataDir string
 	var targetPixelArea float64
 	var languages string
 
-	flag.StringVar(&tessdataDir, "tessdata", tessdataDirDefault, "Directory where Tesseract language data files are stored")
+	flag.StringVar(&tessDataDir, "tessdata", tessdataDirDefault, "Directory where Tesseract language data files are stored")
 	flag.Float64Var(&targetPixelArea, "target-pixel-area", targetPixelAreaDefault, "Target pixel area for image preprocessing")
 	flag.StringVar(&languages, "languages", languagesDefault, "Languages to be used for OCR ('+'-separated)")
 
@@ -57,7 +57,7 @@ func main() {
 	languagesList := strings.Split(languages, "+")
 
 	config := ocr.OCRConfig{
-		TessdataDir:     tessdataDir,
+		TessDataDir:     tessDataDir,
 		TargetPixelArea: targetPixelArea,
 		Languages:       languagesList,
 	}
