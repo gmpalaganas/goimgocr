@@ -100,6 +100,6 @@ func main() {
 	fmt.Print(text)
 
 	if debugMode {
-		fmt.Println("OCR finished in ", time.Since(startTime))
+		fmt.Println("\nOCR finished in ", time.Since(startTime))
 	}
 }
