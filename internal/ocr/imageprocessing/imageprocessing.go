@@ -3,10 +3,8 @@
 package imageprocessing
 
 import (
-	"fmt"
 	"image"
 	"math"
-	"time"
 
 	"gocv.io/x/gocv"
 	"gocv.io/x/gocv/cuda"
@@ -106,9 +104,7 @@ func processImage(imageMat gocv.Mat, targetPixelArea float64) ([]byte, error) {
 }
 
 func processImageCuda(imageMat gocv.Mat, targetPixelArea float64) ([]byte, error) {
-	startTime := time.Now()
 	imageCudaMat := cuda.NewGpuMatFromMat(imageMat)
-	fmt.Printf("Image uploaded to GPU in %v\n", time.Since(startTime))
 	defer imageCudaMat.Close()
 
 	outputMat := imageMat.Clone()
