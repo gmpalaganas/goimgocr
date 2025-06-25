@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"genesis/goimgocr/internal/ocr"
+	"genesis/goimgocr/internal/ocr/imageprocessing"
 	"log"
 	"os"
 	"strings"
@@ -33,6 +34,7 @@ func main() {
 	var tessDataDir string
 	var targetPixelArea float64
 	var languages string
+	var cuda bool
 	var debugMode bool
 
 	var startTime time.Time
@@ -52,6 +54,11 @@ func main() {
 		"languages",
 		languagesDefault,
 		"Languages to be used for OCR ('+'-separated)")
+	flag.BoolVar(
+		&cuda,
+		"cuda",
+		false,
+		"Use CUDA for image processing (experimental)")
 	flag.BoolVar(
 		&debugMode,
 		"debug",
@@ -77,17 +84,25 @@ func main() {
 
 	languagesList := strings.Split(languages, "+")
 
+	preprocessMode := imageprocessing.NoCUDA // Default processing mode
+
+	if cuda {
+		preprocessMode = imageprocessing.CUDA
+	}
+
 	config := ocr.OCRConfig{
 		TessDataDir:     tessDataDir,
 		TargetPixelArea: targetPixelArea,
 		Languages:       languagesList,
+		ProcessingMode:  preprocessMode, // Default processing mode
 	}
 
 	if debugMode {
-		fmt.Println("Running with the following configuration:")
-		fmt.Println("Tesseract data Directory:", config.TessDataDir)
-		fmt.Println("Target Pixel Area:", config.TargetPixelArea)
-		fmt.Println("Languages:", strings.Join(config.Languages, ", "))
+		fmt.Println("Running with the following configuration: ")
+		fmt.Println("Tesseract data Directory: ", config.TessDataDir)
+		fmt.Println("Target Pixel Area: ", config.TargetPixelArea)
+		fmt.Println("Languages: ", strings.Join(config.Languages, ", "))
+		fmt.Println("Cuda enabled? ", cuda)
 
 		startTime = time.Now()
 	}

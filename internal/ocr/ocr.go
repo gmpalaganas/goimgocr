@@ -12,9 +12,10 @@ import (
 )
 
 type OCRConfig struct {
-	TessDataDir     string   // Directory where Tesseract language data files are stored
-	TargetPixelArea float64  // Target pixel area for image preprocessing
-	Languages       []string // Languages to be used for OCR
+	TessDataDir     string                           // Directory where Tesseract language data files are stored
+	TargetPixelArea float64                          // Target pixel area for image preprocessing
+	Languages       []string                         // Languages to be used for OCR
+	ProcessingMode  imageprocessing.IMProcessingMode // Processing mode for image preprocessing
 }
 
 // ExtractTextFromImage takes the path to an image file,
@@ -39,7 +40,7 @@ func ExtractTextFromImage(imagePath string, ocrConfig OCRConfig) (string, error)
 	if err != nil {
 		return "", err
 	}
-	imageBytes, err := imageprocessing.PreprocessImage(imagePath, ocrConfig.TargetPixelArea)
+	imageBytes, err := imageprocessing.PreprocessImage(imagePath, ocrConfig.TargetPixelArea, ocrConfig.ProcessingMode)
 	if err != nil {
 		return "", err
 	}
