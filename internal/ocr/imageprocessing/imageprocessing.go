@@ -20,6 +20,7 @@ const (
 // PreprocessImage takes the path to an image file and a target pixel area
 // Processes the image for better OCR results
 // NOTE: This preprocessing is only based on what worked for me for JPN and ENG languages in the past
+// TODO: Implement better image processing
 func PreprocessImage(imagePath string, targetPixelArea float64, mode IMProcessingMode) ([]byte, error) {
 	preprocessedImageMat := gocv.IMRead(imagePath, gocv.IMReadGrayScale)
 	defer preprocessedImageMat.Close()
