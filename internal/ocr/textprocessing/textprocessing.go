@@ -2,11 +2,17 @@
 package textprocessing
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"sync"
 	"unicode"
 )
+
+type textLine struct {
+	index int
+	text  string
+}
 
 // TrimJapanseText trims the surrounding spaces from Japanese characters
 // in the given text.
@@ -16,27 +22,33 @@ func TrimJapanseText(text string) (string, error) {
 
 	var lineProcessingGroup sync.WaitGroup
 
+	linesChan := make(chan textLine, len(lines))
+
 	for i, line := range lines {
 		// Launch a goroutine for each line to process it concurrently
+		lineProcessingGroup.Add(1)
 		go func() {
+			defer lineProcessingGroup.Done()
 			if hasJapaneseCharacters(line) {
-				lineProcessingGroup.Add(1)
-
-				defer lineProcessingGroup.Done()
 				trimPattern := `\s+([\p{Hiragana}\p{Katakana}\p{Han}])\s+`
 				surroundingSpaceRegexp := regexp.MustCompile(trimPattern)
 				newLine := surroundingSpaceRegexp.ReplaceAllString(line, "$1")
 				newLine = strings.TrimSpace(newLine)
-				newLines[i] = newLine + "\n"
+				linesChan <- textLine{index: i, text: newLine}
 			} else {
-				newLines[i] = line
+				linesChan <- textLine{index: i, text: line}
 			}
 		}()
 	}
 
 	// Wait for all line processing goroutines to finish
 	lineProcessingGroup.Wait()
+	close(linesChan)
 
+	for newLine := range linesChan {
+		fmt.Println("Processing line:", newLine.index, "Text:", newLine.text)
+		newLines[newLine.index] = newLine.text
+	}
 	outputText := strings.Join(newLines, "")
 
 	return outputText, nil
