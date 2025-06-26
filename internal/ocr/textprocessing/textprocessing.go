@@ -2,7 +2,6 @@
 package textprocessing
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"sync"
@@ -46,7 +45,6 @@ func TrimJapanseText(text string) (string, error) {
 	close(linesChan)
 
 	for newLine := range linesChan {
-		fmt.Println("Processing line:", newLine.index, "Text:", newLine.text)
 		newLines[newLine.index] = newLine.text
 	}
 	outputText := strings.Join(newLines, "")
