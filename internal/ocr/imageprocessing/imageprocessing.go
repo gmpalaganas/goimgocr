@@ -21,7 +21,7 @@ const (
 // Processes the image for better OCR results
 // NOTE: This preprocessing is only based on what worked for me for JPN and ENG languages in the past
 func PreprocessImage(imagePath string, targetPixelArea float64, mode IMProcessingMode) ([]byte, error) {
-	preprocessedImageMat := gocv.IMRead(imagePath, gocv.IMReadColor)
+	preprocessedImageMat := gocv.IMRead(imagePath, gocv.IMReadGrayScale)
 	defer preprocessedImageMat.Close()
 
 	var outputBytes []byte
@@ -53,12 +53,6 @@ func computScalingFactor(imageSize image.Point, targetPixelArea float64) (float6
 }
 
 func processImage(imageMat gocv.Mat, targetPixelArea float64) ([]byte, error) {
-	// Convert image to grayscale
-	err := gocv.CvtColor(imageMat, &imageMat, gocv.ColorBGRToGray)
-	if err != nil {
-		return nil, err
-	}
-
 	inputImage, err := imageMat.ToImage()
 	if err != nil {
 		return nil, err
@@ -109,11 +103,6 @@ func processImageCuda(imageMat gocv.Mat, targetPixelArea float64) ([]byte, error
 
 	outputMat := imageMat.Clone()
 	defer outputMat.Close()
-
-	err := cuda.CvtColor(imageCudaMat, &imageCudaMat, gocv.ColorBGRToGray)
-	if err != nil {
-		return nil, err
-	}
 
 	inputImage, err := imageMat.ToImage()
 	if err != nil {
